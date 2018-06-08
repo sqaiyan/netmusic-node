@@ -9,16 +9,17 @@ var dir = "/v1"
 //app.use(bodyParser.json({limit: '1mb'}));
 //app.use(bodyParser.urlencoded({extended: true}));
 app.all('*', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Credentials","true");
-    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By",' 3.2.1')
-    res.header("Content-Type", "application/json;charset=utf-8");
-    next();
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "X-Requested-With");
+	res.header("Access-Control-Allow-Credentials", "true");
+	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+	res.header("X-Powered-By", ' 3.2.1')
+	res.header("Content-Type", "application/json;charset=utf-8");
+	next();
 });
-var cookie=null
-var user={}
+var cookie = null
+var user = {}
+
 function createWebAPIRequest(path, data, c, response, method) {
 	method = method ? method : "POST"
 	var music_req = '';
@@ -35,7 +36,7 @@ function createWebAPIRequest(path, data, c, response, method) {
 			'Referer': 'http://music.163.com',
 			'Host': 'music.163.com',
 			'Cookie': cookie,
-			'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1'
+			'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/602.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/602.1'
 		}
 	}, function(res) {
 		res.on('error', function(err) {
@@ -55,22 +56,23 @@ function createWebAPIRequest(path, data, c, response, method) {
 					return;
 				}
 				if(res.headers['set-cookie']) {
-//					response.set({
-//						'Set-Cookie': res.headers['set-cookie'],
-//					});
-					cookie=res.headers['set-cookie'];
+					//					response.set({
+					//						'Set-Cookie': res.headers['set-cookie'],
+					//					});
+					cookie = res.headers['set-cookie'];
 					response.send({
-						code:200,
+						code: 200,
 						//c: res.headers['set-cookie'],
 						i: JSON.parse(music_req)
 					});
-					user=JSON.parse(music_req)
+					user = JSON.parse(music_req)
 					return;
 				}
 				response.send(music_req);
 			})
 		}
 	});
+	console.log(cryptoreq,path,data);
 	http_client.write('params=' + cryptoreq.params + '&encSecKey=' + cryptoreq.encSecKey);
 	http_client.end();
 }
@@ -103,8 +105,9 @@ function createRequest(path, method, data, callback) {
 app.get(dir + '/mine', function(request, response) {
 	response.send(user);
 });
+//手机登录
 app.get(dir + '/login/cellphone', function(request, response) {
-	var phone =request.query.phone;
+	var phone = request.query.phone;
 	var md5sum = crypto.createHash('md5');
 	md5sum.update(request.query.password);
 	var data = {
@@ -114,7 +117,7 @@ app.get(dir + '/login/cellphone', function(request, response) {
 	};
 	createWebAPIRequest('/weapi/login/cellphone', data, null, response)
 });
-
+//邮箱登录-已失效
 app.get(dir + '/login', function(request, response) {
 	var email = request.query.email;
 	var md5sum = crypto.createHash('md5');
@@ -143,7 +146,7 @@ app.get(dir + '/login/refresh', function(request, response) {
 	createWebAPIRequest('/weapi/login/token/refresh?csrf_token=' + csrf, data, cookie, response)
 });
 
-//banner
+//banner-获取是老数据，基本无用
 app.get(dir + '/banner', function(request, response) {
 	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
 	var data = {
@@ -285,7 +288,7 @@ app.get(dir + '/search/multimatch', function(request, response) {
 //搜索 hot
 app.get(dir + '/search/hot', function(request, response) {
 	var data = {
-		type:1111
+		type: 1111
 	};
 	createWebAPIRequest('/weapi/search/hot', data, cookie, response)
 });
@@ -324,21 +327,21 @@ app.get(dir + '/top/artist', function(request, response) {
 	var data = {
 		'offset': request.query.offset,
 		'total': false,
-		"type":request.query.type,
+		"type": request.query.type,
 		'limit': request.query.limit
 	}
 	createWebAPIRequest('/weapi/artist/top', data, cookie, response);
-//	createRequest('/api/artist/top, 'GET', null, function(res) {
-//		response.setHeader("Content-Type", "application/json");
-//		response.send(res);
-//	});
+	//	createRequest('/api/artist/top, 'GET', null, function(res) {
+	//		response.setHeader("Content-Type", "application/json");
+	//		response.send(res);
+	//	});
 });
 //新歌上架 ,type ALL, ZH,EA,KR,JP
 app.get(dir + '/top/songs', function(request, response) {
 	var data = {
 		'type': request.query.type,
 		'area': request.query.type,
-		'cat':request.query.type,
+		'cat': request.query.type,
 		"csrf_token": ""
 	}
 	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
@@ -397,8 +400,8 @@ app.get(dir + '/top/playlist', function(request, response) {
 app.get(dir + '/top/playlist/highquality', function(request, response) {
 	var data = {
 		'cat': request.query.type,
-		'offset':request.query.offset,
-		"limit":request.query.limit,
+		'offset': request.query.offset,
+		"limit": request.query.limit,
 		"csrf_token": ""
 	}
 	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
@@ -456,24 +459,24 @@ app.get(dir + '/artist', function(request, response) {
 	createWebAPIRequest('/weapi/v1/artist/' + id, data, cookie, response)
 });
 //关注歌手
-app.get(dir+'/artist/sub',function(req,response){
-	var data={
-		artistIds:[req.query.id],
-		artistId:req.query.id,
-		subscribed: true
+app.get(dir + '/artist/sub', function(req, response) {
+	var cookie = req.get('Cookie') ? req.get('Cookie') : (req.query.cookie ? req.query.cookie : '');
+	var type = req.query.type;
+	var url = '/weapi/artist/';
+	var data;
+	if(type == 1) {
+		url += "sub";
+		data = {
+			artistId: req.query.id
+		}
+	} else {
+		url += "unsub";
+		data = {
+			artistIds: [req.query.id],
+		}
 	}
-	if(req.query.type==1){
-		createRequest('/api/artist/sub?artistId='+req.query.id, 'GET', {}, function(res) {
-		response.setHeader("Content-Type", "application/json");
-		response.send(res);
-	});
-	}else{
-		createRequest('/api/artist/unsub?artistIds='+req.query.id, 'GET', {}, function(res) {
-		response.setHeader("Content-Type", "application/json");
-		response.send(res);
-	});
-	}
-	
+	createWebAPIRequest(url, data, cookie, response)
+
 })
 //艺术家-专辑
 app.get(dir + '/artist/album', function(request, response) {
@@ -574,28 +577,28 @@ app.get(dir + '/mv/simi', function(request, response) {
 });
 //mv播放地址
 app.get(dir + '/mv/url', function(request, response) {
-//	var id = parseInt(request.query.id);
-//	var br = parseInt(request.query.br);
-//	var data = {
-//		"ids": [id],
-//		id: id,
-//		"br": br,
-//		"csrf_token": ""
-//	};
-//	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-//	createWebAPIRequest('/weapi/song/enhance/play/mv/url', data, cookie, response)
-var url = request.query.url
-  var headers = {
-    "Referer": "http://music.163.com/",
-    "Cookie": "appver=1.5.0.75771;",
-    'Content-Type': 'video/mp4',
-    'Location': url
-  }
-  var options = {
-    header: headers,
-    url: url
-  }
-  reqhttp(options).pipe(response)
+	//	var id = parseInt(request.query.id);
+	//	var br = parseInt(request.query.br);
+	//	var data = {
+	//		"ids": [id],
+	//		id: id,
+	//		"br": br,
+	//		"csrf_token": ""
+	//	};
+	//	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
+	//	createWebAPIRequest('/weapi/song/enhance/play/mv/url', data, cookie, response)
+	var url = request.query.url
+	var headers = {
+		"Referer": "http://music.163.com/",
+		"Cookie": "appver=1.5.0.75771;",
+		'Content-Type': 'video/mp4',
+		'Location': url
+	}
+	var options = {
+		header: headers,
+		url: url
+	}
+	reqhttp(options).pipe(response)
 });
 //单曲详情
 app.get(dir + '/music/detail', function(request, response) {
@@ -976,53 +979,105 @@ app.get(dir + '/toplist/artist', function(request, response) {
 
 //我的收藏-歌手
 app.get(dir + '/sublist/artist', function(request, response) {
-	var data={
-		offset:request.query.offset||0,
-		limit:request.query.limit||0
+	var data = {
+		offset: request.query.offset || 0,
+		limit: request.query.limit || 0
 	}
-	createWebAPIRequest('/weapi/artist/sublist',data, null, response)
+	createWebAPIRequest('/weapi/artist/sublist', data, null, response)
 })
 //我的收藏-专辑
 app.get(dir + '/sublist/album', function(request, response) {
-	var data={
-		offset:request.query.offset||0,
-		limit:request.query.limit||0
+	var data = {
+		offset: request.query.offset || 0,
+		limit: request.query.limit || 0
 	}
-	createWebAPIRequest('/weapi/album/sublist',data, null, response)
+	createWebAPIRequest('/weapi/album/sublist', data, null, response)
 })
 //我的收藏-MV
 app.get(dir + '/sublist/mv', function(request, response) {
-	var data={
-		offset:request.query.offset||0,
-		limit:request.query.limit||0
+	var data = {
+		offset: request.query.offset || 0,
+		limit: request.query.limit || 0
 	}
-	createWebAPIRequest('/weapi/mv/sublist',data, null, response)
+	createWebAPIRequest('/weapi/mv/sublist', data, null, response)
 })
 //我的收藏-歌手
 app.get(dir + '/sublist/radio', function(request, response) {
-	var data={
-		offset:request.query.offset||0,
-		limit:request.query.limit||0
+	var data = {
+		offset: request.query.offset || 0,
+		limit: request.query.limit || 0
 	}
-	createWebAPIRequest('/weapi/djradio/get/subed',data, null, response)
+	createWebAPIRequest('/weapi/djradio/get/subed', data, null, response)
 })
 //我的收藏-专栏
 app.get(dir + '/sublist/topic', function(request, response) {
-	var data={
-		offset:request.query.offset||0,
-		limit:request.query.limit||0
+	var data = {
+		offset: request.query.offset || 0,
+		limit: request.query.limit || 0
 	}
-	createWebAPIRequest('/weapi/topic/sublist',data, null, response)
+	createWebAPIRequest('/weapi/topic/sublist', data, null, response)
+})
+//短视频-播放地址
+app.get(dir + '/video/playurl', function(request, response) {
+	var data = {
+		ids: JSON.stringify([request.query.id]),
+		resolution: request.query.br,
+		csrf_token: ''
+	}
+	createWebAPIRequest('/weapi/cloudvideo/playurl', data, null, response)
+})
+//短视频-detail
+app.get(dir + '/video/detail', function(request, response) {
+	var data = {
+		id: request.query.id
+	}
+	createWebAPIRequest('/weapi/cloudvideo/v1/video/detail', data, null, response)
+})
+//短视频-simi
+app.get(dir + '/video/rcmd', function(request, response) {
+	var data = {
+		id: request.query.id,
+		type: 1
+	}
+	createWebAPIRequest('/weapi/cloudvideo/v1/allvideo/rcmd', data, null, response)
+})
+//短视频-statistic
+app.get(dir + '/video/statistic', function(request, response) {
+	var data = {
+		id: request.query.id,
+	}
+	createWebAPIRequest('/weapi/cloudvideo/v1/video/statistic', data, null, response)
+})
+//topic detail
+app.get(dir + '/topic/detail', function(request, response) {
+	var data = {
+		id: request.query.id,
+		csrf_token: '',
+		type: "web",
+		mobile: !0
+	}
+	createWebAPIRequest('/weapi/web/topic/get', data, null, response)
+})
+//歌单收藏-取消收藏
+app.get(dir + '/playlist/fav', function(request, response) {
+	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
+	var data = {
+		id: request.query.id,
+		csrf_token: ''
+	}
+	var url = '/weapi/playlist/' + (request.query.type == 1 ? 'subscribe' : 'unsubscribe')+"?csrf_token=''";
+	console.log(url);
+	createWebAPIRequest(url, data, cookie, response)
 })
 app.all('*', function(req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "X-Requested-With");
-    res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-    res.header("X-Powered-By",' 3.2.1')
-    res.header("Content-Type", "application/json;charset=utf-8");
-    next();
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "X-Requested-With");
+	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+	res.header("X-Powered-By", ' 3.2.1')
+	res.header("Content-Type", "application/json;charset=utf-8");
+	next();
 });
-var server = app.listen(3000, function() {
+var server = app.listen(3008, function() {
 	console.log("启动App");
 });
 
