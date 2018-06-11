@@ -2,23 +2,11 @@ var Encrypt = require('./crypto.js');
 var express = require('express');
 var http = require('http');
 var crypto = require('crypto');
-var reqhttp = require("request")
-//var bodyParser = require("body-parser");
+var reqhttp = require("request");
 var app = express();
-var dir = "/v1"
-//app.use(bodyParser.json({limit: '1mb'}));
-//app.use(bodyParser.urlencoded({extended: true}));
-app.all('*', function(req, res, next) {
-	res.header("Access-Control-Allow-Origin", "*");
-	res.header("Access-Control-Allow-Headers", "X-Requested-With");
-	res.header("Access-Control-Allow-Credentials", "true");
-	res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
-	res.header("X-Powered-By", ' 3.2.1')
-	res.header("Content-Type", "application/json;charset=utf-8");
-	next();
-});
-var cookie = null
-var user = {}
+var dir = "/v1";
+var cookie = null;
+var user = {};
 
 function createWebAPIRequest(path, data, c, response, method) {
 	method = method ? method : "POST"
@@ -56,13 +44,9 @@ function createWebAPIRequest(path, data, c, response, method) {
 					return;
 				}
 				if(res.headers['set-cookie']) {
-					//					response.set({
-					//						'Set-Cookie': res.headers['set-cookie'],
-					//					});
 					cookie = res.headers['set-cookie'];
 					response.send({
 						code: 200,
-						//c: res.headers['set-cookie'],
 						i: JSON.parse(music_req)
 					});
 					user = JSON.parse(music_req)
@@ -72,7 +56,6 @@ function createWebAPIRequest(path, data, c, response, method) {
 			})
 		}
 	});
-	console.log(cryptoreq,path,data);
 	http_client.write('params=' + cryptoreq.params + '&encSecKey=' + cryptoreq.encSecKey);
 	http_client.end();
 }
@@ -1065,7 +1048,7 @@ app.get(dir + '/playlist/fav', function(request, response) {
 		id: request.query.id,
 		csrf_token: ''
 	}
-	var url = '/weapi/playlist/' + (request.query.type == 1 ? 'subscribe' : 'unsubscribe')+"?csrf_token=''";
+	var url = '/weapi/playlist/' + (request.query.type == 1 ? 'subscribe' : 'unsubscribe') + "?csrf_token=''";
 	console.log(url);
 	createWebAPIRequest(url, data, cookie, response)
 })
