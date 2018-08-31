@@ -7,7 +7,13 @@ var app = express();
 var dir = "/v1";
 var cookie = null;
 var user = {};
+var jsessionid = randomString('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKMNOPQRSTUVWXYZ\\/+',176) + ':' + (new Date).getTime(); 
+var nuid = randomString('0123456789abcdefghijklmnopqrstuvwxyz',32);
+function randomString(pattern, length){
+  return Array.apply(null, {length: length}).map(() => (pattern[Math.floor(Math.random() * pattern.length)])).join('');
+}
 
+var baseCookie=`JSESSIONID-WYYY=${jsessionid}; _iuqxldmzr_=32; _ntes_nnid=${nuid},${(new Date).getTime()}; _ntes_nuid=${nuid}`;
 function createWebAPIRequest(path, data, c, response, method) {
 	method = method ? method : "POST"
 	var music_req = '';
@@ -44,7 +50,7 @@ function createWebAPIRequest(path, data, c, response, method) {
 					return;
 				}
 				if(res.headers['set-cookie']) {
-					cookie = res.headers['set-cookie'];
+					cookie =baseCookie +';'+ res.headers['set-cookie'];
 					response.send({
 						code: 200,
 						i: JSON.parse(music_req)
@@ -615,8 +621,7 @@ app.get(dir + '/music/url', function(request, response) {
 		"br": br,
 		"csrf_token": ""
 	};
-	var cookie = request.get('Cookie') ? request.get('Cookie') : (request.query.cookie ? request.query.cookie : '');
-	createWebAPIRequest('/weapi/song/enhance/player/url', data, cookie, response)
+	createWebAPIRequest('/weapi/song/enhance/player/url', data, null, response)
 });
 //用户详情
 app.get(dir + '/user/detail', function(request, response) {
