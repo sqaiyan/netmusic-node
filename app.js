@@ -1065,7 +1065,7 @@ app.all('*', function(req, res, next) {
 	res.header("Content-Type", "application/json;charset=utf-8");
 	next();
 });
-var server = app.listen(3008, function() {
+var server = app.listen(3000, function() {
 	console.log("启动App");
 });
 
